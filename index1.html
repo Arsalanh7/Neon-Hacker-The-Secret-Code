@@ -1,0 +1,278 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEON HACKER</title>
+
+<style>
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: #050b13;
+    color: #00ffbb;
+    font-family: Consolas, monospace;
+    text-align: center;
+    padding: 25px 12px;
+}
+
+.container {
+    max-width: 550px;
+    margin: 25px auto;
+    padding: 28px 18px;
+    border: 1px solid #00ffbb;
+    border-radius: 18px;
+    background: #0b1821;
+    box-shadow: 0 0 25px #00ffbb33;
+}
+
+h1 {
+    font-size: 35px;
+    text-shadow: 0 0 15px #00ffbb;
+}
+
+.subtitle { color: #8aa9aa; }
+
+.code {
+    font-size: 38px;
+    letter-spacing: 12px;
+    margin: 25px;
+    color: white;
+    text-shadow: 0 0 15px #00ffbb;
+}
+
+input {
+    width: 180px;
+    padding: 13px;
+    font-size: 22px;
+    text-align: center;
+    background: #061017;
+    color: #00ffbb;
+    border: 1px solid #00ffbb;
+    border-radius: 8px;
+    outline: none;
+}
+
+button {
+    padding: 13px 22px;
+    margin: 10px;
+    background: #00ffbb;
+    color: #061017;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 15px;
+}
+
+button:hover { background: white; }
+
+#message {
+    min-height: 45px;
+    margin: 20px;
+    color: white;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 25px 0;
+    color: white;
+}
+
+#game, #gameOver, #victory {
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>⚡ NEON HACKER</h1>
+<p class="subtitle">FIND THE SECRET CODE</p>
+
+<div id="start">
+    <h2>MISSION START</h2>
+    <p>Crack the secret code!</p>
+    <p>3 Levels | No Time Limit</p>
+    <button onclick="startGame()">START GAME</button>
+</div>
+
+<div id="game">
+
+    <h2 id="level">LEVEL 1</h2>
+
+    <p>ENTER THE 3-DIGIT CODE</p>
+
+    <div class="code">🔐 ? ? ?</div>
+
+    <input id="guess" type="number"
+    placeholder="000" min="100" max="999">
+
+    <br>
+
+    <button onclick="checkCode()">SUBMIT CODE</button>
+    <button onclick="showHint()">GET HINT</button>
+
+    <div id="message">Find the secret code!</div>
+
+    <div class="stats">
+        <div>SCORE<br><span id="score">0</span></div>
+        <div>ATTEMPTS<br><span id="attempts">0</span></div>
+        <div>HINTS<br><span id="hints">2</span></div>
+    </div>
+
+</div>
+
+<div id="gameOver">
+    <h1>💀 GAME OVER</h1>
+    <p id="finalScore"></p>
+    <button onclick="startGame()">TRY AGAIN</button>
+</div>
+
+<div id="victory">
+    <h1>🏆 SYSTEM CRACKED!</h1>
+    <p>You completed all missions!</p>
+    <p id="winScore"></p>
+    <button onclick="startGame()">PLAY AGAIN</button>
+</div>
+
+</div>
+
+<script>
+
+let secret;
+let score = 0;
+let attempts = 0;
+let hints = 2;
+let level = 1;
+let active = false;
+
+function startGame() {
+
+    score = 0;
+    attempts = 0;
+    hints = 2;
+    level = 1;
+
+    document.getElementById("start").style.display = "none";
+    document.getElementById("gameOver").style.display = "none";
+    document.getElementById("victory").style.display = "none";
+    document.getElementById("game").style.display = "block";
+
+    newLevel();
+}
+
+function newLevel() {
+
+    secret = Math.floor(Math.random() * 900) + 100;
+
+    attempts = 0;
+    active = true;
+
+    document.getElementById("level").innerText =
+        "LEVEL " + level;
+
+    document.getElementById("message").innerText =
+        "Find the secret code!";
+
+    document.getElementById("guess").value = "";
+
+    updateStats();
+}
+
+function checkCode() {
+
+    if (!active) return;
+
+    let guess = Number(document.getElementById("guess").value);
+
+    if (!Number.isInteger(guess) || guess < 100 || guess > 999) {
+        document.getElementById("message").innerText =
+            "ENTER A VALID 3-DIGIT NUMBER!";
+        return;
+    }
+
+    attempts++;
+
+    if (guess === secret) {
+
+        score += 100;
+
+        document.getElementById("message").innerText =
+            "ACCESS GRANTED! CODE CRACKED!";
+
+        updateStats();
+        active = false;
+
+        setTimeout(function() {
+
+            if (level === 3) {
+
+                document.getElementById("game").style.display = "none";
+                document.getElementById("victory").style.display = "block";
+
+                document.getElementById("winScore").innerText =
+                    "FINAL SCORE: " + score;
+
+            } else {
+
+                level++;
+                newLevel();
+
+            }
+
+        }, 1200);
+
+    } else {
+
+        let hint = guess < secret ? "GO HIGHER!" : "GO LOWER!";
+
+        document.getElementById("message").innerText =
+            "WRONG CODE! " + hint;
+
+    }
+
+    updateStats();
+}
+
+function showHint() {
+
+    if (!active || hints <= 0) {
+        document.getElementById("message").innerText =
+            "NO HINTS LEFT!";
+        return;
+    }
+
+    hints--;
+
+    let digits = String(secret).split("");
+
+    let even = digits.filter(d => Number(d) % 2 === 0).length;
+
+    document.getElementById("message").innerText =
+        "HINT: " + even + " EVEN DIGITS IN THE CODE.";
+
+    updateStats();
+}
+
+function updateStats() {
+
+    document.getElementById("score").innerText = score;
+    document.getElementById("attempts").innerText = attempts;
+    document.getElementById("hints").innerText = hints;
+
+}
+
+document.getElementById("guess").addEventListener("keydown", function(e) {
+    if (e.key === "Enter") checkCode();
+});
+
+</script>
+
+</body>
+</html>
