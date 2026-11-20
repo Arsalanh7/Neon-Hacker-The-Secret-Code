@@ -15,7 +15,6 @@ body {
     color: #00ffbb;
     font-family: Consolas, monospace;
     text-align: center;
-    min-height: 100vh;
     padding: 25px 12px;
 }
 
@@ -35,12 +34,6 @@ h1 {
 }
 
 .subtitle { color: #8aa9aa; }
-
-#timer {
-    font-size: 32px;
-    margin: 20px;
-    color: #ffcc00;
-}
 
 .code {
     font-size: 38px;
@@ -89,17 +82,8 @@ button:hover { background: white; }
     color: white;
 }
 
-#gameOver, #victory {
+#game, #gameOver, #victory {
     display: none;
-}
-
-#game {
-    display: none;
-}
-
-.hint {
-    color: #8aa9aa;
-    font-size: 14px;
 }
 </style>
 </head>
@@ -113,16 +97,14 @@ button:hover { background: white; }
 
 <div id="start">
     <h2>MISSION START</h2>
-    <p>Crack the secret code before time runs out!</p>
-    <p>3 Levels | 3 Digits | Limited Time</p>
+    <p>Crack the secret code!</p>
+    <p>3 Levels | No Time Limit</p>
     <button onclick="startGame()">START GAME</button>
 </div>
 
 <div id="game">
 
     <h2 id="level">LEVEL 1</h2>
-
-    <div id="timer">30</div>
 
     <p>ENTER THE 3-DIGIT CODE</p>
 
@@ -134,15 +116,14 @@ button:hover { background: white; }
     <br>
 
     <button onclick="checkCode()">SUBMIT CODE</button>
-
     <button onclick="showHint()">GET HINT</button>
 
-    <div id="message">Waiting for your code...</div>
+    <div id="message">Find the secret code!</div>
 
     <div class="stats">
-        <div> SCORE<br><span id="score">0</span></div>
-        <div> ATTEMPTS<br><span id="attempts">0</span></div>
-        <div> HINTS<br><span id="hints">2</span></div>
+        <div>SCORE<br><span id="score">0</span></div>
+        <div>ATTEMPTS<br><span id="attempts">0</span></div>
+        <div>HINTS<br><span id="hints">2</span></div>
     </div>
 
 </div>
@@ -169,13 +150,9 @@ let score = 0;
 let attempts = 0;
 let hints = 2;
 let level = 1;
-let time = 30;
-let timerInterval;
 let active = false;
 
 function startGame() {
-
-    clearInterval(timerInterval);
 
     score = 0;
     attempts = 0;
@@ -194,7 +171,6 @@ function newLevel() {
 
     secret = Math.floor(Math.random() * 900) + 100;
 
-    time = 30 - (level - 1) * 5;
     attempts = 0;
     active = true;
 
@@ -207,22 +183,6 @@ function newLevel() {
     document.getElementById("guess").value = "";
 
     updateStats();
-
-    clearInterval(timerInterval);
-
-    document.getElementById("timer").innerText = time;
-
-    timerInterval = setInterval(function() {
-
-        time--;
-
-        document.getElementById("timer").innerText = time;
-
-        if (time <= 0) {
-            gameOver();
-        }
-
-    }, 1000);
 }
 
 function checkCode() {
@@ -241,15 +201,13 @@ function checkCode() {
 
     if (guess === secret) {
 
-        score += time * 10;
+        score += 100;
 
         document.getElementById("message").innerText =
             "ACCESS GRANTED! CODE CRACKED!";
 
         updateStats();
-
         active = false;
-        clearInterval(timerInterval);
 
         setTimeout(function() {
 
@@ -307,19 +265,6 @@ function updateStats() {
     document.getElementById("score").innerText = score;
     document.getElementById("attempts").innerText = attempts;
     document.getElementById("hints").innerText = hints;
-
-}
-
-function gameOver() {
-
-    active = false;
-    clearInterval(timerInterval);
-
-    document.getElementById("game").style.display = "none";
-    document.getElementById("gameOver").style.display = "block";
-
-    document.getElementById("finalScore").innerText =
-        "YOUR SCORE: " + score;
 
 }
 
